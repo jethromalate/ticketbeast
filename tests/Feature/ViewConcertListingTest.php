@@ -11,10 +11,10 @@ use Illuminate\Foundation\Testing\DatabaseMigrations;
 class ViewConcertListingTest extends TestCase
 {
     use DatabaseMigrations;
-
+   
 
    /** @test */
-   function user_can_view_a_concert_listing()
+   function user_can_view_a_published_concert_listing()
    {
         $this->withoutExceptionHandling();
 
@@ -25,7 +25,7 @@ class ViewConcertListingTest extends TestCase
             # instead of having a UI, its faster, also removing some duplication to our test.
             # Design Direction thru - ORM Laravel Eloquent
 
-            $concert = Concert::create([
+            $concert = factory(Concert::class)->states('published')->create([
 
                 'title'=> 'The Red Chord',
                 'subtitle' => 'with Animosity and Lethargy',
@@ -42,7 +42,6 @@ class ViewConcertListingTest extends TestCase
 
         // Act
         // View the concert listing
-
             $response = $this->get('/concerts/'.$concert->id);
                 
 
@@ -60,6 +59,14 @@ class ViewConcertListingTest extends TestCase
             $response->assertSee('For tickets, call (555) 555-5555.');
    }
 
+   /** @test */
+   function user_cannot_view_unpublished_concert_listing()
+   {
+        $concert = factory(Concert::class)->states('unpublished')->create();
 
+        $response = $this->get('/concerts/'.$concert->id);
+
+        $response->assertStatus(404);
+   }
    
 }
