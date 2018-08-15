@@ -20,6 +20,7 @@ class PurchaseTicketsTest extends TestCase
         //$this->withoutExceptionHandling();
 
         $paymentGateway = new FakePaymentGateway;
+
         $this->app->instance(PaymentGateway::class, $paymentGateway);
 
     // System Flow

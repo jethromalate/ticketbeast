@@ -34,7 +34,7 @@ class Handler extends ExceptionHandler
      */
     public function report(Exception $exception)
     {
-        throw $exception;
+        //throw $exception;
 
         parent::report($exception);
     }
