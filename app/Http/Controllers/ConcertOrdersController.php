@@ -13,12 +13,28 @@ class ConcertOrdersController extends Controller
     public function __construct(PaymentGateway $paymentGateway)
     {
         $this->paymentGateway = $paymentGateway;
+
+
     }
+
+    function test()
+    {
+
+        $paymentGateway = new FakePaymentGateway;
+
+        $this->app->instance(PaymentGateway::class, $paymentGateway);
+
+    }
+
 
     function store($concertId)
     {
-        $concert = Concert::find($concertId);
+        // Add Validation Request
+        $this->validate(request(), [
+            'email' => 'required',
+        ]);
 
+        $concert = Concert::find($concertId);
 
         // Charging the customer
         $this->paymentGateway->charge( request('ticket_quantity') * $concert->ticket_price , request('payment_token'));
