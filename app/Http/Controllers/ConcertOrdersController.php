@@ -6,6 +6,7 @@ use App\Concert;
 use Illuminate\Http\Request;
 use App\Billing\PaymentFailedException;
 use App\Billing\PaymentGateway;
+use App\Billing\FakePaymentGateway;
 
 class ConcertOrdersController extends Controller
 {
@@ -14,13 +15,6 @@ class ConcertOrdersController extends Controller
     public function __construct(PaymentGateway $paymentGateway)
     {
         $this->paymentGateway = $paymentGateway;
-    }
-
-    function test()
-    {
-        $paymentGateway = new FakePaymentGateway;
-
-        $this->app->instance(PaymentGateway::class, $paymentGateway);
     }
 
     function store($concertId)

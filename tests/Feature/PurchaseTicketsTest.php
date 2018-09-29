@@ -56,7 +56,7 @@ class PurchaseTicketsTest extends TestCase
     }
 
     /** @test */
-    function cannot_purchase_tickets_to_an_unpublished_concert()
+    function customer_cannot_purchase_tickets_to_an_unpublished_concert()
     {
         //$this->withoutExceptionHandling();
 
