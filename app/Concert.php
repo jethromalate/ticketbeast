@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Ticket;
 use Illuminate\Database\Eloquent\Model;
 
 class Concert extends Model
@@ -36,17 +37,41 @@ class Concert extends Model
         return $this->hasMany(Order::class);
     }
 
+    public function tickets()
+    {
+        return $this->hasMany(Ticket::class);
+    }
+
     public function orderTickets($email, $ticketQuantity)
     {
         // Creating the order
         $order = $this->orders()->create(['email'=> $email]);
 
-        foreach (range(1, $ticketQuantity) as $i) {
+        // fetch tickets with no order yet
+        $tickets = $this->tickets()->take($ticketQuantity)->get();
 
-            $order->tickets()->create([]);
+        foreach ($tickets as $ticket) {
+
+            // pass in the ticket that we want to save and associate with that order
+            $order->tickets()->save($ticket);
 
         }
 
         return $order;
+    }
+
+    public function addTickets($quantity)
+    {
+        
+        foreach (range(1, $quantity) as $i) {
+
+            $this->tickets()->create([]);
+
+        }
+    }
+
+    public function ticketsRemaining()
+    {
+        return $this->tickets()->whereNull('order_id')->count();
     }
 }

@@ -61,7 +61,7 @@ class PurchaseTicketsTest extends TestCase
         //$this->withoutExceptionHandling();
 
         $concert = factory(Concert::class)->states('unpublished')->create();
-
+ 
         $return = $this->orderTickets($concert, [
             'email' => 'jeth@example.com',
             'ticket_quantity' => 3,
@@ -71,6 +71,29 @@ class PurchaseTicketsTest extends TestCase
         $return->assertStatus(404);
         $this->assertEquals(0, $concert->orders()->count());
         $this->assertEquals(0, $this->paymentGateway->totalCharges());
+
+    }
+
+
+    /** @test */
+    function customer_cannot_purchase_more_tickets_than_remaining()
+    {
+        //we need to check the ticket quantity available
+        $concert = factory(Concert::class)->states('published')->create();
+
+        $concert->addTickets(50); //add unit test for this behavior
+
+        $return = $this->orderTickets($concert, [
+            'email' => 'jeth@example.com',
+            'ticket_quantity' => 51,
+            'payment_token' => $this->paymentGateway->getValidTestToken(),
+        ]);
+
+        $return->assertStatus(422);
+        $order = $concert->orders()->where('email', 'jeth@example.com')->first();
+        $this->assertNull($order);
+        $this->assertEquals(0, $this->paymentGateway->totalCharges());
+        $this->assertEquals(50, $concert->ticketsRemaining());
 
     }
 
@@ -87,6 +110,7 @@ class PurchaseTicketsTest extends TestCase
             'payment_token' => 'invalid-payment-token',
         ]);
 
+        // Unprocessable Entity
         $return->assertStatus(422);
 
         $order = $concert->orders()->where('email', 'jeth@example.com')->first();
