@@ -39,7 +39,7 @@ class PurchaseTicketsTest extends TestCase
     public function customer_can_purchase_tickets_to_a_published_concert()
     {
         $concert = factory(Concert::class)->states('published')->create(['ticket_price' => 3250]);
-
+        $concert->addTickets(3);
         $return = $this->orderTickets($concert, [
             'email' => 'jeth@example.com',
             'ticket_quantity' => 3,
@@ -61,7 +61,7 @@ class PurchaseTicketsTest extends TestCase
         //$this->withoutExceptionHandling();
 
         $concert = factory(Concert::class)->states('unpublished')->create();
-
+        $concert->addTickets(3);
         $return = $this->orderTickets($concert, [
             'email' => 'jeth@example.com',
             'ticket_quantity' => 3,
@@ -78,6 +78,8 @@ class PurchaseTicketsTest extends TestCase
     /** @test */
     function customer_cannot_purchase_more_tickets_than_remaining()
     {
+        $this->withoutExceptionHandling();
+
         //we need to check the ticket quantity available
         $concert = factory(Concert::class)->states('published')->create();
 
@@ -100,10 +102,8 @@ class PurchaseTicketsTest extends TestCase
     /** @test */
     function an_order_is_not_created_if_payment_fails()
     {
-        //$this->withoutExceptionHandling();
-
         $concert = factory(Concert::class)->states('published')->create(['ticket_price' => 3250]);
-
+        $concert->addTickets(3);
         $return = $this->orderTickets($concert, [
             'email' => 'jeth@example.com',
             'ticket_quantity' => 3,
